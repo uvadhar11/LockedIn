@@ -47,6 +47,15 @@ export function CalendarTab({
   });
   const [editingTask, setEditingTask] = useState<EditingTask | null>(null);
 
+  // Update current time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Handle drag start event
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     e.dataTransfer.setData("taskId", task.id);
@@ -221,7 +230,7 @@ export function CalendarTab({
                       </div>
                     ) : (
                       <>
-                        <span className="flex-1">{task.title}</span>
+                        <span className="flex-1 truncate">{task.title}</span>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                           <button
                             onClick={() => startEditingSidebarTask(task)}
@@ -257,7 +266,7 @@ export function CalendarTab({
                   >
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-gray-500" />
-                      <span className="flex-1">{task.title}</span>
+                      <span className="flex-1 truncate">{task.title}</span>
                     </div>
                     {task.dueDate && (
                       <div className="mt-1 text-xs text-gray-500">
@@ -313,7 +322,7 @@ export function CalendarTab({
               {days.map((day, dayIndex) => (
                 <div
                   key={dayIndex}
-                  className="border-r border-b h-16"
+                  className="border-r border-b h-16 relative"
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, dayIndex, hour)}
                 >
@@ -324,11 +333,14 @@ export function CalendarTab({
                     .map((task) => (
                       <div
                         key={task.id}
-                        className="p-2 bg-indigo-100 rounded-lg cursor-move"
+                        className="absolute top-0 left-0 right-0 p-2 bg-indigo-100 rounded-lg cursor-move truncate"
                         draggable
                         onDragStart={(e) => handleDragStart(e, task)}
                         onClick={() => handleTaskClick(task)}
-                        style={{ height: `${task.duration * 64}px` }} // Adjust height based on duration
+                        style={{
+                          height: `${task.duration * 64}px`, // Adjust height based on duration
+                          zIndex: 10,
+                        }}
                       >
                         {task.title}
                       </div>

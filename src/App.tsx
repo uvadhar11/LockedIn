@@ -1,97 +1,130 @@
-import React, { useState, useEffect } from 'react';
-import { Navigation } from './components/Navigation';
-import { InboxTab } from './components/InboxTab';
-import { CalendarTab } from './components/CalendarTab';
-import { GoalsTab } from './components/GoalsTab';
-import { CircleTab } from './components/CircleTab';
-// import { Auth } from './components/Auth';
-// import { supabase } from './lib/supabase';
-import type { Task, Goal } from './types';
-import type { Session } from '@supabase/supabase-js';
+import React, { useState, useEffect } from "react";
+import { Navigation } from "./components/Navigation";
+import { InboxTab } from "./components/InboxTab";
+import { CalendarTab } from "./components/CalendarTab";
+import { GoalsTab } from "./components/GoalsTab";
+import { CircleTab } from "./components/CircleTab";
+import type { Task, Goal } from "./types";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "./lib/supabase";
+// import { Auth } from "./components/Auth";
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [activeTab, setActiveTab] = useState('inbox');
+  const [activeTab, setActiveTab] = useState("inbox");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [goals, setGoals] = useState<Goal[]>(() => {
-    const savedGoals = localStorage.getItem('goals');
-    return savedGoals ? JSON.parse(savedGoals) : [
-      {
-        id: '1',
-        title: 'Launch MVP Product',
-        description: 'Complete and launch the minimum viable product for our new service',
-        specific: 'Develop and release core features of the product',
-        measurable: 'Complete all critical features and pass QA testing',
-        attainable: 'Team has necessary resources and skills',
-        relevant: 'Aligns with company growth strategy',
-        timeBound: new Date('2024-04-30').toISOString(),
-        tasks: [
-          { id: 't1', title: 'Design System Implementation', type: 'actionable', status: 'task', created: new Date().toISOString(), completed: false },
-          { id: 't2', title: 'Core Features Development', type: 'actionable', status: 'task', created: new Date().toISOString(), completed: false },
-          { id: 't3', title: 'User Testing', type: 'actionable', status: 'task', created: new Date().toISOString(), completed: false }
-        ],
-        progress: 0
-      }
-    ];
+    const savedGoals = localStorage.getItem("goals");
+    return savedGoals
+      ? JSON.parse(savedGoals)
+      : [
+          {
+            id: "1",
+            title: "Launch MVP Product",
+            description:
+              "Complete and launch the minimum viable product for our new service",
+            specific: "Develop and release core features of the product",
+            measurable: "Complete all critical features and pass QA testing",
+            attainable: "Team has necessary resources and skills",
+            relevant: "Aligns with company growth strategy",
+            timeBound: new Date("2024-04-30").toISOString(),
+            tasks: [
+              {
+                id: "t1",
+                title: "Design System Implementation",
+                type: "actionable",
+                status: "task",
+                created: new Date().toISOString(),
+                completed: false,
+              },
+              {
+                id: "t2",
+                title: "Core Features Development",
+                type: "actionable",
+                status: "task",
+                created: new Date().toISOString(),
+                completed: false,
+              },
+              {
+                id: "t3",
+                title: "User Testing",
+                type: "actionable",
+                status: "task",
+                created: new Date().toISOString(),
+                completed: false,
+              },
+            ],
+            progress: 0,
+          },
+        ];
   });
 
   const [scheduledTasks, setScheduledTasks] = useState(() => {
-    const saved = localStorage.getItem('scheduledTasks');
+    const saved = localStorage.getItem("scheduledTasks");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // useEffect(() => {
-  //   supabase.auth.getSession().then(({ data: { session } }) => {
-  //     setSession(session);
-  //   });
-
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange((_event, session) => {
-  //     setSession(session);
-  //   });
-
-  //   return () => subscription.unsubscribe();
-  // }, []);
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    localStorage.setItem('goals', JSON.stringify(goals));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    // if (session) navigate("/inbox");
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      // if (session) navigate("/inbox");
+    });
+
+    return () => subscription.unsubscribe();
+  }, [session]);
+
+  useEffect(() => {
+    localStorage.setItem("goals", JSON.stringify(goals));
   }, [goals]);
 
   useEffect(() => {
-    localStorage.setItem('scheduledTasks', JSON.stringify(scheduledTasks));
+    localStorage.setItem("scheduledTasks", JSON.stringify(scheduledTasks));
   }, [scheduledTasks]);
 
   const addTask = (text: string) => {
     const newTask: Task = {
       id: Date.now().toString(),
       title: text,
-      type: 'actionable',
-      status: 'task',
+      type: "actionable",
+      status: "task",
       created: new Date().toISOString(),
-      completed: false
+      completed: false,
     };
     setTasks([...tasks, newTask]);
   };
 
   const removeTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-    setScheduledTasks(scheduledTasks.filter(task => task.id !== taskId));
+    setTasks(tasks.filter((task) => task.id !== taskId));
+    setScheduledTasks(scheduledTasks.filter((task) => task.id !== taskId));
   };
 
   const updateTask = (taskId: string, updatedTask: Task) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId ? updatedTask : task
-    ));
+    setTasks((prev) =>
+      prev.map((task) => (task.id === taskId ? updatedTask : task))
+    );
   };
 
   const updateGoalProgress = (goalId: string) => {
-    setGoals(prevGoals => 
-      prevGoals.map(goal => {
+    setGoals((prevGoals) =>
+      prevGoals.map((goal) => {
         if (goal.id === goalId) {
-          const completedTasks = goal.tasks.filter(task => task.completed).length;
+          const completedTasks = goal.tasks.filter(
+            (task) => task.completed
+          ).length;
           const totalTasks = goal.tasks.length;
-          const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+          const progress =
+            totalTasks > 0
+              ? Math.round((completedTasks / totalTasks) * 100)
+              : 0;
           return { ...goal, progress };
         }
         return goal;
@@ -100,10 +133,10 @@ export default function App() {
   };
 
   const toggleTaskCompletion = (goalId: string, taskId: string) => {
-    setGoals(prevGoals =>
-      prevGoals.map(goal => {
+    setGoals((prevGoals) =>
+      prevGoals.map((goal) => {
         if (goal.id === goalId) {
-          const updatedTasks = goal.tasks.map(task =>
+          const updatedTasks = goal.tasks.map((task) =>
             task.id === taskId ? { ...task, completed: !task.completed } : task
           );
           return { ...goal, tasks: updatedTasks };
@@ -120,12 +153,12 @@ export default function App() {
 
   const renderTab = () => {
     switch (activeTab) {
-      case 'inbox':
+      case "inbox":
         return <InboxTab onAddTask={addTask} />;
-      case 'calendar':
+      case "calendar":
         return (
-          <CalendarTab 
-            tasks={tasks} 
+          <CalendarTab
+            tasks={tasks}
             goals={goals}
             onRemoveTask={removeTask}
             onUpdateTask={updateTask}
@@ -133,15 +166,15 @@ export default function App() {
             setScheduledTasks={setScheduledTasks}
           />
         );
-      case 'goals':
+      case "goals":
         return (
-          <GoalsTab 
-            goals={goals} 
+          <GoalsTab
+            goals={goals}
             setGoals={setGoals}
             onToggleTask={toggleTaskCompletion}
           />
         );
-      case 'circle':
+      case "circle":
         return <CircleTab />;
       default:
         return <div>Tab content coming soon</div>;
@@ -151,9 +184,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="container mx-auto py-6">
-        {renderTab()}
-      </main>
+      <main className="container mx-auto py-6">{renderTab()}</main>
     </div>
   );
 }

@@ -16,7 +16,7 @@ function Header() {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200">
+    <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-center space-x-8">
           {pages.map(({ id, icon: Icon, label, to }) => (

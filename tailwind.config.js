@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+<<<<<<< HEAD
   // tells tailwind where our index.html file and src files are (in case we move it outside the default file placement)
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
@@ -21,4 +22,11 @@ export default {
     },
     plugins: [],
   },
+=======
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+>>>>>>> 70c08b1d47c9d630b6196b22952794edd2a56e98
 };

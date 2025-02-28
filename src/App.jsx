@@ -1,7 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AppLayout from "./ui/AppLayout";
 import PageNotFound from "./pages/PageNotFound";
-import { Calendar, Inbox } from "lucide-react";
+import Calendar from "./pages/Calendar";
+import Inbox from "./pages/Inbox";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Goals from "./pages/Goals";
